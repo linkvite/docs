@@ -1,0 +1,48 @@
+---
+title: "Linkvite API overview"
+sidebarTitle: "Overview"
+description: "What you can build with the Linkvite API, how requests and authentication work, and where to start."
+keywords: ["api", "rest", "developers", "integration"]
+---
+
+The Linkvite API is a JSON REST API. It covers everything the Linkvite apps do: bookmarks, notes and files, collections and sharing, highlights, reminders, RSS feeds, profiles and search.
+
+| | |
+| --- | --- |
+| Base URL | `https://api.linkvite.io` |
+| Staging | `https://api-stg.linkvite.io` |
+| Format | JSON requests and responses; file uploads use `multipart/form-data` |
+| Authentication | An [API key](/developers/api-keys) or an [OAuth](/developers/oauth) access token |
+| Specification | OpenAPI 3.1, the source of the [API reference](/api-reference) and the SDKs |
+
+The specification is generated from the API's own code, so the reference and the SDKs always match what the server does.
+
+## Choose how to authenticate
+
+<Columns cols={2}>
+  <Card title="API keys" icon="key" href="/developers/api-keys">
+    For your own scripts and servers, acting as your account. Requires Pro.
+  </Card>
+  <Card title="OAuth" icon="shield-check" href="/developers/oauth">
+    For apps other people sign in to: extensions, desktop, mobile and web apps.
+  </Card>
+</Columns>
+
+## Start building
+
+<Columns cols={2}>
+  <Card title="Quickstart" icon="rocket" href="/developers/quickstart">
+    Save a bookmark and list your library in a few lines.
+  </Card>
+  <Card title="API reference" icon="book-open" href="/api-reference">
+    Every endpoint, with parameters, responses and code samples.
+  </Card>
+  <Card title="JavaScript SDK" icon="js" href="/sdks/javascript">
+    Typed client for Node, browsers and extensions.
+  </Card>
+  <Card title="Go SDK" icon="golang" href="/sdks/go">
+    Typed client with no dependencies outside the standard library.
+  </Card>
+</Columns>
+
+Building for AI assistants? Linkvite also has an [MCP server](/developers/mcp).

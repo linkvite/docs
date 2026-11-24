@@ -1,0 +1,145 @@
+{
+  "$schema": "https://mintlify.com/docs.json",
+  "theme": "mint",
+  "name": "Linkvite",
+  "description": "Save and organize your bookmarks. Guides, the Linkvite API, SDKs and MCP server.",
+  "colors": {
+    "primary": "#FA5A5F",
+    "light": "#FF6D6D",
+    "dark": "#E5484D"
+  },
+  "logo": {
+    "light": "/logo/light.svg",
+    "dark": "/logo/dark.svg",
+    "href": "https://linkvite.io"
+  },
+  "favicon": "/images/favicon.png",
+  "appearance": {
+    "default": "dark"
+  },
+  "navbar": {
+    "links": [
+      { "label": "Support", "href": "mailto:contact@linkvite.io" }
+    ],
+    "primary": {
+      "type": "button",
+      "label": "Open Linkvite",
+      "href": "https://app.linkvite.io"
+    }
+  },
+  "navigation": {
+    "global": {
+      "anchors": [
+        { "anchor": "GitHub", "icon": "github", "href": "https://github.com/linkvite" },
+        { "anchor": "Community", "icon": "discord", "href": "https://discord.gg/4sJ65cpenK" }
+      ]
+    },
+    "tabs": [
+      {
+        "tab": "Guides",
+        "groups": [
+          {
+            "group": "Get started",
+            "pages": ["index", "guides/quickstart"]
+          },
+          {
+            "group": "Using Linkvite",
+            "pages": [
+              "guides/import",
+              "guides/collections",
+              "guides/ai-assistants",
+              "guides/shortcuts",
+              "guides/plans"
+            ]
+          },
+          {
+            "group": "Help",
+            "pages": ["help/faq", "help/support"]
+          }
+        ]
+      },
+      {
+        "tab": "Developers",
+        "groups": [
+          {
+            "group": "Get started",
+            "pages": ["developers/overview", "developers/quickstart"]
+          },
+          {
+            "group": "Authentication",
+            "pages": [
+              "developers/authentication",
+              "developers/api-keys",
+              "developers/oauth",
+              "developers/scopes"
+            ]
+          },
+          {
+            "group": "Working with the API",
+            "pages": [
+              "developers/responses-and-errors",
+              "developers/pagination",
+              "developers/rate-limits"
+            ]
+          },
+          {
+            "group": "SDKs",
+            "pages": ["sdks/javascript", "sdks/go"]
+          },
+          {
+            "group": "AI assistants",
+            "pages": ["developers/mcp"]
+          }
+        ]
+      },
+      {
+        "tab": "API reference",
+        "openapi": {
+          "source": "api-reference/openapi.json",
+          "directory": "api-reference"
+        }
+      },
+      {
+        "tab": "Legal",
+        "groups": [
+          {
+            "group": "Legal",
+            "pages": ["legal/privacy", "legal/terms", "legal/copyright"]
+          }
+        ]
+      }
+    ]
+  },
+  "api": {
+    "playground": {
+      "display": "interactive"
+    },
+    "examples": {
+      "languages": ["curl", "javascript", "go"]
+    }
+  },
+  "contextual": {
+    "options": ["copy", "view", "chatgpt", "claude"]
+  },
+  "seo": {
+    "indexing": "navigable"
+  },
+  "footer": {
+    "socials": {
+      "x": "https://x.com/tryLinkvite",
+      "github": "https://github.com/linkvite",
+      "discord": "https://discord.gg/4sJ65cpenK"
+    }
+  },
+  "redirects": [
+    { "source": "/introduction", "destination": "/" },
+    { "source": "/guides/basics", "destination": "/guides/quickstart" },
+    { "source": "/guides/settings", "destination": "/guides/quickstart" },
+    { "source": "/integrations/:slug*", "destination": "/developers/overview" },
+    { "source": "/help/feedback", "destination": "/help/support" },
+    { "source": "/help/bug", "destination": "/help/support" },
+    { "source": "/api-reference/authentication", "destination": "/developers/authentication" },
+    { "source": "/api-reference/errors", "destination": "/developers/responses-and-errors" },
+    { "source": "/sdks/server/js", "destination": "/sdks/javascript" }
+  ]
+}

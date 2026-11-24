@@ -1,0 +1,46 @@
+---
+title: "OAuth scopes"
+sidebarTitle: "Scopes"
+description: "Every OAuth scope the Linkvite API defines and what it allows."
+keywords: ["scopes", "permissions", "oauth"]
+---
+
+OAuth access tokens can only do what their scopes allow. Ask for the fewest scopes your app needs; users see them on the consent screen. Scopes are `resource:action`, separated by spaces in the `scope` parameter.
+
+Each endpoint's required scope is listed in the [API reference](/api-reference). [API keys](/developers/api-keys) aren't limited by scopes.
+
+| Resource | Scopes |
+| --- | --- |
+| Bookmarks | `bookmarks:read`, `bookmarks:write`, `bookmarks:edit`, `bookmarks:delete` |
+| Collections | `collections:read`, `collections:write`, `collections:edit`, `collections:delete` |
+| Highlights | `highlights:read`, `highlights:write`, `highlights:edit`, `highlights:delete` |
+| Comments | `comments:read`, `comments:write`, `comments:delete` |
+| Reminders | `reminders:read`, `reminders:write`, `reminders:edit`, `reminders:delete` |
+| RSS feeds | `rss-feeds:read`, `rss-feeds:write`, `rss-feeds:edit`, `rss-feeds:delete` |
+| Invites | `invites:read`, `invites:edit` |
+| Invite links | `invite-links:write`, `invite-links:edit`, `invite-links:delete` |
+| Files | `files:read` |
+| Search | `search:read` |
+| Explore | `explore:read` |
+| User | `user:read`, `user:edit`, `user:storage:read`, `user:trash:delete` |
+| Plans | `plans:read` |
+| Apps | `apps:read` |
+| API keys | `api-keys:read` |
+
+The actions mean:
+
+| Action | Allows |
+| --- | --- |
+| `read` | Viewing |
+| `write` | Creating |
+| `edit` | Changing existing items |
+| `delete` | Deleting |
+
+A request without the scope it needs returns `403`:
+
+```json
+{
+  "ok": false,
+  "error": "You need bookmarks:write scope to access this resource"
+}
+```

@@ -1,0 +1,88 @@
+---
+title: "Responses and errors"
+sidebarTitle: "Responses and errors"
+description: "The response envelope, HTTP status codes, validation errors and request IDs."
+keywords: ["errors", "status codes", "response format", "request id", "validation"]
+---
+
+## Successful responses
+
+Successful responses are JSON objects with `ok: true`. The payload, when there is one, is in `data`:
+
+```json
+{
+  "ok": true,
+  "message": "Bookmark created!",
+  "data": {
+    "id": "bmk_...",
+    "url": "https://example.com"
+  }
+}
+```
+
+Some actions return only `ok` and `message`. The SDKs resolve to `data` directly.
+
+A few endpoints don't use JSON: [collection RSS feeds](/api-reference/profiles/get-profile-bookmarks-as-rss-feed) return XML.
+
+## Errors
+
+Errors return `ok: false`, a message, and the request ID:
+
+```json
+{
+  "ok": false,
+  "error": "Validation error",
+  "errors": {
+    "url": "required"
+  },
+  "request_id": "8a1b2c3d4e5f6789-IAD"
+}
+```
+
+| Field | |
+| --- | --- |
+| `error` | Human-readable message |
+| `errors` | For validation errors: field → problem |
+| `request_id` | Identifies the request; also in the `X-Request-ID` header of every response |
+
+## Status codes
+
+| Status | Meaning |
+| --- | --- |
+| `200`, `201` | Success |
+| `400` | Validation failed (see `errors`), or a malformed parameter |
+| `401` | Missing, invalid or expired credentials |
+| `402` | The action needs [Linkvite Pro](/guides/plans) |
+| `403` | Not allowed: an OAuth token without the needed [scope](/developers/scopes), or no access to the collection |
+| `404` | Not found, or not visible to you |
+| `422` | The request body couldn't be parsed |
+| `429` | [Rate limited](/developers/rate-limits) |
+| `5xx` | Server error; safe to retry idempotent requests with backoff |
+
+<Tip>When you contact support about a failed request, include its `request_id`.</Tip>
+
+## In the SDKs
+
+<CodeGroup>
+
+```javascript JavaScript
+import {LinkviteError} from '@linkvite/js';
+
+try {
+	await linkvite.bookmarks.create({url: ''});
+} catch (err) {
+	if (err instanceof LinkviteError) {
+		console.log(err.status, err.errors, err.requestId);
+	}
+}
+```
+
+```go Go
+_, err := client.Bookmarks.Create(ctx, &linkvite.CreateBookmarkRequest{})
+var e *linkvite.Error
+if errors.As(err, &e) {
+	log.Println(e.Status, e.Errors, e.RequestID)
+}
+```
+
+</CodeGroup>

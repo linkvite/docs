@@ -1,0 +1,41 @@
+---
+title: "Use Linkvite with Claude and other AI assistants"
+sidebarTitle: "AI assistants"
+description: "Connect Linkvite to an AI assistant so it can save links and notes, search your bookmarks and update notes you've saved."
+keywords: ["mcp", "claude", "ai", "assistant", "connector", "chatgpt"]
+---
+
+Linkvite has an MCP server, so AI assistants that support the Model Context Protocol (such as Claude) can work with your Linkvite directly. Ask the assistant to:
+
+- save a link or a summary it wrote for you;
+- find something you saved ("what did I save about Postgres indexing?");
+- update a note you saved earlier instead of creating a new one;
+- file things into a collection.
+
+<Info>Using Linkvite with AI assistants is part of [Linkvite Pro](/guides/plans).</Info>
+
+## Connect Claude
+
+<Steps>
+  <Step title="Add Linkvite as a connector">
+    In Claude's connector settings, add a custom connector with this URL:
+
+    ```text
+    https://api.linkvite.io/mcp
+    ```
+  </Step>
+  <Step title="Sign in and approve">
+    Claude sends you to Linkvite to sign in. Review the access it asks for and select **Allow**.
+  </Step>
+  <Step title="Try it">
+    Ask Claude something like "save this article to my Reading collection in Linkvite".
+  </Step>
+</Steps>
+
+Other assistants that support remote MCP servers with OAuth connect the same way, with the same URL.
+
+## Disconnect an assistant
+
+Remove the connector in the assistant, or revoke its access in Linkvite: **Settings** lists the apps you've authorized, each with a **Revoke** button.
+
+Building your own MCP client? See [MCP server](/developers/mcp) for the tools and scopes.

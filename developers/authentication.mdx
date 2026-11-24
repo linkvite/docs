@@ -1,0 +1,50 @@
+---
+title: "Authenticate with the Linkvite API"
+sidebarTitle: "Overview"
+description: "API keys for your own account, OAuth access tokens for apps other people use, and which endpoints need neither."
+keywords: ["authentication", "api key", "bearer token", "oauth", "x-api-key"]
+---
+
+Every request is made over HTTPS and authenticates in one of two ways.
+
+| Method | Header | Use it for |
+| --- | --- | --- |
+| [API key](/developers/api-keys) | `x-api-key: link_...` | Scripts and servers acting as your own account |
+| [OAuth access token](/developers/oauth) | `Authorization: Bearer <token>` | Apps other people sign in to |
+
+<CodeGroup>
+
+```bash API key
+curl https://api.linkvite.io/v1/user \
+  -H "x-api-key: $LINKVITE_API_KEY"
+```
+
+```bash Access token
+curl https://api.linkvite.io/v1/user \
+  -H "Authorization: Bearer $ACCESS_TOKEN"
+```
+
+</CodeGroup>
+
+## Permissions
+
+- **API keys** act with your account's full access.
+- **OAuth access tokens** are limited to the [scopes](/developers/scopes) the user approved. A request outside them fails with `403` and names the missing scope.
+
+## Public endpoints
+
+Some endpoints work without authentication, such as public profiles and public collections (`GET /v1/profiles/{username}` and the endpoints under it). Authentication is optional there: send credentials to see what's visible to your account, such as a private account you follow.
+
+## Failed authentication
+
+A missing, invalid, revoked or expired credential returns `401`:
+
+```json
+{
+  "ok": false,
+  "error": "...",
+  "request_id": "..."
+}
+```
+
+With OAuth, refresh the access token and retry; see [refreshing tokens](/developers/oauth#refresh-tokens).
