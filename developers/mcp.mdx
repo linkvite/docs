@@ -1,0 +1,45 @@
+---
+title: "Linkvite MCP server"
+sidebarTitle: "MCP server"
+description: "Connect AI assistants and agents to Linkvite over the Model Context Protocol: endpoint, authentication, tools and scopes."
+keywords: ["mcp", "model context protocol", "ai", "agents", "claude", "tools"]
+---
+
+Linkvite's MCP server lets AI assistants save and find things in a user's Linkvite. For connecting an assistant like Claude, see [use with AI assistants](/guides/ai-assistants).
+
+| | |
+| --- | --- |
+| Endpoint | `https://api.linkvite.io/mcp` |
+| Transport | Streamable HTTP (stateless) |
+| Authentication | OAuth 2.1 with PKCE; the server advertises its authorization server through protected resource metadata |
+| Resource metadata | `https://api.linkvite.io/.well-known/oauth-protected-resource/mcp` |
+| Plan | [Linkvite Pro](/guides/plans) |
+| Rate limit | 300 requests per 5 minutes per user |
+
+## Authentication
+
+MCP clients discover everything from the endpoint: an unauthenticated request returns `401` pointing at the resource metadata, which names Linkvite's authorization server. Clients can register with a Client ID Metadata Document (an `https://` `client_id`), so no manual app registration is needed.
+
+Tokens for the MCP server are issued for the resource `https://api.linkvite.io/mcp` and don't work against the REST API, and the reverse. See [resource indicators](/developers/oauth#resource-indicators).
+
+## Tools
+
+| Tool | What it does | Scopes |
+| --- | --- | --- |
+| `save_link` | Save a URL. Saving a URL that's already saved returns the existing bookmark. | `bookmarks:write` |
+| `save_note` | Save text (Markdown) as a file the user can open and preview. | `bookmarks:write` |
+| `save_file` | Save a file (PDF, image, Office document, audio, video, text), base64-encoded; up to 1 MiB per call, larger files up to 10 MiB in chunks. | `bookmarks:write` |
+| `search_bookmarks` | Search bookmarks and notes by title, description, URL and tags. | `search:read` |
+| `list_recent_bookmarks` | The most recently saved bookmarks and notes, newest first. | `bookmarks:read` |
+| `get_bookmark` | One bookmark; for a note or text file, also its text (up to 1 MiB) and `content_sha256`. | `bookmarks:read` |
+| `list_collections` | Collections the user owns or belongs to, with their IDs. | `collections:read` |
+| `create_collection` | Create a collection. | `collections:write` |
+| `update_note` | Replace the whole text of a saved note or text file, in place. | `bookmarks:write`, `files:read` |
+| `edit_note` | Replace exact passages in a saved note or text file; all edits apply or none do. | `bookmarks:write`, `files:read` |
+| `delete_bookmark` | Move a bookmark, note or file the user owns to the trash (restorable). | `bookmarks:delete` |
+
+Read-only tools are annotated `readOnlyHint`; `update_note`, `edit_note` and `delete_bookmark` are annotated `destructiveHint`.
+
+### Editing notes safely
+
+`update_note` and `edit_note` take the `content_sha256` from `get_bookmark` as `expected_sha256`. If the note changed since it was read, the edit is refused instead of overwriting someone else's changes.

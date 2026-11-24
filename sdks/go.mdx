@@ -1,0 +1,88 @@
+---
+title: "Go SDK"
+sidebarTitle: "Go"
+description: "Use github.com/linkvite/go/v2, the official typed Go client, with no dependencies outside the standard library."
+keywords: ["go", "golang", "sdk"]
+---
+
+The Go SDK's services and types are generated from the Linkvite OpenAPI spec, so every endpoint, request and response matches the API. It needs Go 1.24+ and has no dependencies outside the standard library.
+
+```bash
+go get github.com/linkvite/go/v2
+```
+
+## Create a client
+
+```go
+import "github.com/linkvite/go/v2"
+
+client, err := linkvite.NewClient(os.Getenv("LINKVITE_API_KEY"))
+```
+
+For [OAuth](/developers/oauth), pass an HTTP client that adds and refreshes the token, such as the one from `golang.org/x/oauth2`:
+
+```go
+conf := &oauth2.Config{
+	ClientID: clientID,
+	Endpoint: oauth2.Endpoint{AuthURL: linkvite.AuthURL, TokenURL: linkvite.TokenURL},
+	Scopes:   []string{"bookmarks:read"},
+}
+client, err := linkvite.NewClient("", linkvite.WithHTTPClient(conf.Client(ctx, token)))
+```
+
+## Call the API
+
+Path parameters are arguments, request bodies are `*XRequest` structs, and query parameters are `*XParams` structs (`nil` for none). Optional values are pointers; use `linkvite.Ptr`.
+
+```go
+b, err := client.Bookmarks.Create(ctx, &linkvite.CreateBookmarkRequest{
+	URL:  "https://example.com",
+	Tags: "reading",
+})
+
+page, err := client.Bookmarks.FromCollection(ctx, "col_123", &linkvite.BookmarksFromCollectionParams{
+	Page:  linkvite.Ptr(2),
+	Limit: linkvite.Ptr(100),
+})
+
+f, _ := os.Open("paper.pdf")
+err = client.Bookmarks.CreateFile(ctx, &linkvite.BookmarksCreateFileRequest{
+	File: linkvite.File{Name: "paper.pdf", Reader: f},
+})
+```
+
+Each method's doc comment gives its [scope](/developers/scopes), rate limit and route. `client.Do(ctx, method, path, query, body, &out)` calls any endpoint.
+
+## Errors and retries
+
+```go
+_, err := client.Bookmarks.Get(ctx, "bmk_123")
+var e *linkvite.Error
+if errors.As(err, &e) {
+	log.Println(e.Status, e.Errors, e.RequestID)
+}
+if linkvite.IsNotFound(err) {
+	// ...
+}
+```
+
+Idempotent requests are retried on `429`, `5xx` and network errors (twice by default; `WithMaxRetries` changes it), honouring `Retry-After`. Cancel requests with the context.
+
+## Pagination
+
+```go
+for b, err := range linkvite.Paginate(ctx, func(ctx context.Context, page int) ([]linkvite.BookmarkResponse, *linkvite.Pagination, error) {
+	r, err := client.Bookmarks.GetAll(ctx, &linkvite.BookmarksGetAllParams{Page: linkvite.Ptr(page), Limit: linkvite.Ptr(100)})
+	if err != nil {
+		return nil, nil, err
+	}
+	return r.Bookmarks, r.Pagination, nil
+}) {
+	if err != nil {
+		return err
+	}
+	fmt.Println(b.Title)
+}
+```
+
+Source and releases: [github.com/linkvite/go](https://github.com/linkvite/go).

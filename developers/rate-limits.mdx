@@ -1,0 +1,38 @@
+---
+title: "Rate limits"
+sidebarTitle: "Rate limits"
+description: "How many requests you can make, the rate limit headers, and how to handle 429 responses."
+keywords: ["rate limit", "429", "retry-after", "throttling"]
+---
+
+Most endpoints allow **250 requests per 5 minutes**. Some have their own limits, such as sign-in and other sensitive endpoints; each endpoint's limit is listed in the [API reference](/api-reference).
+
+## Headers
+
+Rate-limited responses include:
+
+| Header | |
+| --- | --- |
+| `X-RateLimit-Limit` | Requests allowed in the window |
+| `X-RateLimit-Remaining` | Requests left in the current window |
+| `X-RateLimit-Reset` | Seconds until the window resets |
+
+## When you hit the limit
+
+Requests over the limit return `429` with a `Retry-After` header, in seconds:
+
+```json
+{
+  "ok": false,
+  "error": "...",
+  "request_id": "..."
+}
+```
+
+Wait at least `Retry-After` seconds before retrying. The SDKs do this automatically for idempotent requests (`GET`, `PUT`, `DELETE`), retrying twice by default.
+
+## Staying under the limit
+
+- Request up to 100 items per page instead of many small pages.
+- Use batch endpoints where they exist, such as [batch edit](/api-reference/bookmarks/batch-edit-bookmark) and [batch star](/api-reference/bookmarks/batch-toggle-bookmark-star) for bookmarks.
+- Cache data that doesn't change often, like collections and the user.

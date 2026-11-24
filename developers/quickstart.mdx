@@ -1,0 +1,103 @@
+---
+title: "Make your first Linkvite API call"
+sidebarTitle: "Quickstart"
+description: "Create an API key, save a bookmark and list your bookmarks with curl, JavaScript or Go."
+keywords: ["quickstart", "first request", "api key", "curl"]
+---
+
+<Steps>
+  <Step title="Create an API key">
+    In the web app, go to **Settings** → **Developers** and create an API key. Keys start with `link_`. API keys need [Linkvite Pro](/guides/plans).
+
+    ```bash
+    export LINKVITE_API_KEY="link_..."
+    ```
+  </Step>
+  <Step title="Install an SDK (optional)">
+    <CodeGroup>
+
+    ```bash JavaScript
+    npm install @linkvite/js
+    ```
+
+    ```bash Go
+    go get github.com/linkvite/go/v2
+    ```
+
+    </CodeGroup>
+  </Step>
+  <Step title="Save a bookmark">
+    <CodeGroup>
+
+    ```bash curl
+    curl -X POST https://api.linkvite.io/v1/bookmarks \
+      -H "x-api-key: $LINKVITE_API_KEY" \
+      -H "Content-Type: application/json" \
+      -d '{"url": "https://example.com", "tags": "reading"}'
+    ```
+
+    ```javascript JavaScript
+    import {Linkvite} from '@linkvite/js';
+
+    const linkvite = new Linkvite(process.env.LINKVITE_API_KEY);
+    const bookmark = await linkvite.bookmarks.create({
+    	url: 'https://example.com',
+    	tags: 'reading',
+    });
+    console.log(bookmark.id);
+    ```
+
+    ```go Go
+    client, err := linkvite.NewClient(os.Getenv("LINKVITE_API_KEY"))
+    if err != nil {
+    	log.Fatal(err)
+    }
+    b, err := client.Bookmarks.Create(ctx, &linkvite.CreateBookmarkRequest{
+    	URL:  "https://example.com",
+    	Tags: "reading",
+    })
+    ```
+
+    </CodeGroup>
+
+    The response wraps the new bookmark in `data` ([response format](/developers/responses-and-errors)):
+
+    ```json
+    {
+      "ok": true,
+      "message": "Bookmark created!",
+      "data": {
+        "id": "bmk_...",
+        "url": "https://example.com",
+        "title": "Example Domain",
+        "tags": "reading"
+      }
+    }
+    ```
+  </Step>
+  <Step title="List your bookmarks">
+    <CodeGroup>
+
+    ```bash curl
+    curl "https://api.linkvite.io/v1/bookmarks?limit=20&q=example" \
+      -H "x-api-key: $LINKVITE_API_KEY"
+    ```
+
+    ```javascript JavaScript
+    const {bookmarks, pagination} = await linkvite.bookmarks.getAll({limit: 20, q: 'example'});
+    ```
+
+    ```go Go
+    page, err := client.Bookmarks.GetAll(ctx, &linkvite.BookmarksGetAllParams{
+    	Limit: linkvite.Ptr(20),
+    	Q:     linkvite.Ptr("example"),
+    })
+    ```
+
+    </CodeGroup>
+
+    Lists are paginated; see [pagination](/developers/pagination).
+  </Step>
+</Steps>
+
+<Note>The example response shows a few fields; the [API reference](/api-reference) lists all of them.</Note>

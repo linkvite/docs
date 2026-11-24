@@ -1,0 +1,104 @@
+---
+title: "JavaScript and TypeScript SDK"
+sidebarTitle: "JavaScript"
+description: "Use @linkvite/js, the official typed client for Node, browsers and browser extensions."
+keywords: ["javascript", "typescript", "node", "sdk", "npm", "@linkvite/js"]
+---
+
+`@linkvite/js` is generated from the Linkvite OpenAPI spec: every endpoint has a typed method, and request and response types match the API. It works anywhere with `fetch`: Node 20+, Deno, Bun, browsers and browser extensions.
+
+```bash
+npm install @linkvite/js
+```
+
+## Create a client
+
+<CodeGroup>
+
+```javascript API key
+import {Linkvite} from '@linkvite/js';
+
+const linkvite = new Linkvite(process.env.LINKVITE_API_KEY);
+```
+
+```javascript OAuth token
+import {Linkvite} from '@linkvite/js';
+
+const linkvite = new Linkvite({token: accessToken});
+```
+
+</CodeGroup>
+
+## Call the API
+
+Methods are grouped by resource (`bookmarks`, `collections`, `highlights`, ...). Path parameters come first, then the request body, then query parameters. Every method resolves to the response's `data`.
+
+```javascript
+const bookmark = await linkvite.bookmarks.create({url: 'https://example.com', tags: 'reading'});
+await linkvite.bookmarks.update(bookmark.id, {title: 'New title'});
+
+const {bookmarks, pagination} = await linkvite.bookmarks.fromCollection('col_123', {page: 2, limit: 100});
+
+// files: pass a Blob or File
+await linkvite.bookmarks.createFile({file: new File([pdf], 'paper.pdf'), collection: 'col_123'});
+```
+
+Each method's JSDoc shows its required [scope](/developers/scopes) and rate limit. For an endpoint the SDK doesn't have yet, use `linkvite.request('GET', '/v1/...')`.
+
+## OAuth helpers
+
+The `oauth` namespace implements the [authorization code flow with PKCE](/developers/oauth):
+
+```javascript
+import {Linkvite, oauth} from '@linkvite/js';
+
+const pkce = await oauth.createPkce();
+const url = oauth.authorizeUrl({clientId, redirectUri, scope: 'bookmarks:read', state, codeChallenge: pkce.challenge});
+const tokens = await oauth.exchangeCode({clientId, redirectUri, code, codeVerifier: pkce.verifier});
+```
+
+Refresh tokens rotate, so only one refresh may run at a time. `singleFlightRefresher` handles that, and `onUnauthorized` retries a request once with the new token:
+
+```javascript
+const refresh = oauth.singleFlightRefresher({
+	clientId,
+	load: () => store.get('refresh_token'),
+	save: t => store.set({access_token: t.access_token, refresh_token: t.refresh_token}),
+});
+
+const linkvite = new Linkvite({
+	token: () => store.get('access_token'),
+	onUnauthorized: refresh,
+});
+```
+
+## Errors and retries
+
+Failed requests throw a `LinkviteError` with `status`, `errors` (validation details) and `requestId`. Idempotent requests are retried on `429`, `5xx` and network errors, honouring `Retry-After`.
+
+```javascript
+new Linkvite({
+	apiKey: 'link_...',
+	maxRetries: 2,
+	timeoutMs: 30_000,
+	baseUrl: 'https://api-stg.linkvite.io',
+});
+```
+
+## Pagination
+
+```javascript
+for await (const b of linkvite.paginate(page => linkvite.bookmarks.getAll({page, limit: 100}), 'bookmarks')) {
+	console.log(b.title);
+}
+```
+
+## Types
+
+```typescript
+import type {Schemas} from '@linkvite/js';
+
+type Bookmark = Schemas['BookmarkResponse'];
+```
+
+Source and changelog: [github.com/linkvite/js](https://github.com/linkvite/js).

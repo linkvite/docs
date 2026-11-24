@@ -1,0 +1,68 @@
+---
+title: "Paginate through lists"
+sidebarTitle: "Pagination"
+description: "Page through bookmarks, collections and other lists with page and limit."
+keywords: ["pagination", "page", "limit", "sort", "search"]
+---
+
+List endpoints take `page` and `limit` query parameters and return a `pagination` object next to the items.
+
+| Parameter | Default | |
+| --- | --- | --- |
+| `page` | `1` | Page number, starting at 1 |
+| `limit` | `10` | Items per page, up to `100` |
+| `q` | | Search text, on endpoints that support it |
+| `sort` | Endpoint-specific | For bookmarks, `-date` (newest first); see each endpoint in the [API reference](/api-reference) |
+
+```bash
+curl "https://api.linkvite.io/v1/bookmarks?page=2&limit=50" \
+  -H "x-api-key: $LINKVITE_API_KEY"
+```
+
+```json
+{
+  "ok": true,
+  "data": {
+    "bookmarks": [ ... ],
+    "pagination": {
+      "total": 132,
+      "page": 2,
+      "limit": 50,
+      "last_page": 3
+    }
+  }
+}
+```
+
+Keep requesting the next page until `page` reaches `last_page`.
+
+## With the SDKs
+
+<CodeGroup>
+
+```javascript JavaScript
+for await (const b of linkvite.paginate(
+	page => linkvite.bookmarks.getAll({page, limit: 100}),
+	'bookmarks',
+)) {
+	console.log(b.title);
+}
+```
+
+```go Go
+items := linkvite.Paginate(ctx, func(ctx context.Context, page int) ([]linkvite.BookmarkResponse, *linkvite.Pagination, error) {
+	r, err := client.Bookmarks.GetAll(ctx, &linkvite.BookmarksGetAllParams{Page: linkvite.Ptr(page), Limit: linkvite.Ptr(100)})
+	if err != nil {
+		return nil, nil, err
+	}
+	return r.Bookmarks, r.Pagination, nil
+})
+for b, err := range items {
+	if err != nil {
+		return err
+	}
+	fmt.Println(b.Title)
+}
+```
+
+</CodeGroup>

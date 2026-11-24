@@ -1,0 +1,47 @@
+---
+title: "Create and use Linkvite API keys"
+sidebarTitle: "API keys"
+description: "Create an API key for scripts and servers that act as your own Linkvite account."
+keywords: ["api key", "x-api-key", "personal access", "pro"]
+---
+
+An API key lets your own code use the API as you, with your account's full access. Use one for scripts, cron jobs, automations and servers. If you're building an app other people sign in to, use [OAuth](/developers/oauth) instead.
+
+<Info>Creating and using API keys requires [Linkvite Pro](/guides/plans).</Info>
+
+## Create a key
+
+1. In the web app, go to **Settings** → **Developers**.
+2. Create a key and give it a name you'll recognize later.
+3. Copy it. Keys start with `link_`.
+
+Store keys like passwords: in environment variables or a secrets manager, never in client-side code or a repository.
+
+## Use a key
+
+Send it in the `x-api-key` header:
+
+<CodeGroup>
+
+```bash curl
+curl https://api.linkvite.io/v1/user \
+  -H "x-api-key: $LINKVITE_API_KEY"
+```
+
+```javascript JavaScript
+import {Linkvite} from '@linkvite/js';
+
+const linkvite = new Linkvite(process.env.LINKVITE_API_KEY);
+```
+
+```go Go
+client, err := linkvite.NewClient(os.Getenv("LINKVITE_API_KEY"))
+```
+
+</CodeGroup>
+
+A key that doesn't start with `link_` is rejected with `400`; an unknown or deleted key returns `401`.
+
+## Manage keys
+
+**Settings** → **Developers** lists your keys and when each was last used. Rename a key, or delete one you no longer use or that may have leaked; requests with a deleted key fail immediately.

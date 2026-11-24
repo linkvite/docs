@@ -1,4 +1,43 @@
 ---
-title: "Import"
-description: "Discover how to easily import your existing bookmarks into Linkvite. This page will walk you through the import process, supporting various formats."
+title: "Import bookmarks from your browser or another app"
+sidebarTitle: "Import bookmarks"
+description: "Bring bookmarks into Linkvite from Chrome, Firefox, Safari, Raindrop.io, Pocket, Instapaper or a list of links."
+keywords: ["import", "migrate", "export", "raindrop", "pocket", "chrome bookmarks", "html", "csv"]
 ---
+
+Linkvite imports the bookmark exports most browsers and apps produce. Folders in your export become collections.
+
+## Export your bookmarks
+
+| From | How to export |
+| --- | --- |
+| Chrome, Edge, Brave | Bookmarks manager (<kbd>⌘</kbd> <kbd>⇧</kbd> <kbd>O</kbd>) → ⋮ → **Export bookmarks** → `.html` |
+| Firefox | **Bookmarks** → **Manage bookmarks** → **Import and Backup** → **Export Bookmarks to HTML** |
+| Safari | **File** → **Export** → **Bookmarks…** → `.html` |
+| Raindrop.io | **Settings** → **Backups** → **Export** → HTML or CSV |
+| Pocket, Instapaper, others | Use their HTML or CSV export |
+| A list of links | A `.txt` file with one `https://` link per line |
+
+## Import into Linkvite
+
+<Steps>
+  <Step title="Open the importer">
+    In the web app, go to **Settings** → **Import bookmarks**.
+  </Step>
+  <Step title="Add your export">
+    Upload the `.html`, `.csv` or `.txt` file (up to 50 MB), or paste links directly, one per line or separated by spaces. Only `https://` links are imported.
+  </Step>
+  <Step title="Review and choose options">
+    Linkvite shows what it found so you can untick anything you don't want. Then choose:
+
+    - **Skip links you've already saved**: otherwise duplicates are created.
+    - **Turn folders into collections**: existing collections with the same name are reused. Turned off, everything lands in **Unsorted**.
+  </Step>
+  <Step title="Import">
+    The import runs in the background. You'll get a notification when it's done.
+  </Step>
+</Steps>
+
+<Tip>
+  Importing from code? The API has the same importer: [`POST /v1/parser/html`](/api-reference/parser/parse-html-file), [`/csv`](/api-reference/parser/parse-csv-file) and [`/text`](/api-reference/parser/parse-txt-file) parse a file, and [`POST /v1/parser/import`](/api-reference/parser/import-parsed-items) saves the result.
+</Tip>
