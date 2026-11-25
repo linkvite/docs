@@ -1,0 +1,74 @@
+name: CI
+
+# Mintlify builds and deploys the site itself (its GitHub app, on push to
+# main). This checks a pull request before that happens.
+
+on:
+  pull_request:
+  push:
+    branches: [main]
+
+concurrency:
+  group: ci-${{ github.ref }}
+  cancel-in-progress: true
+
+permissions:
+  contents: read
+
+env:
+  MINT_VERSION: 4.3.90
+
+jobs:
+  validate:
+    name: Validate
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v6
+
+      - uses: actions/setup-node@v6
+        with:
+          node-version: 22
+
+      # docs.json, every page's MDX, the OpenAPI spec, then a strict build
+      - name: mint validate
+        run: npx --yes mint@${MINT_VERSION} validate
+
+      - name: Broken links
+        run: npx --yes mint@${MINT_VERSION} broken-links
+
+  spec:
+    name: API reference matches the SDK
+    runs-on: ubuntu-latest
+    # advisory: linkvite/js main lags cultus until each SDK release merges
+    continue-on-error: true
+    # The JS SDK (public) carries the same cultus spec this site renders. A
+    # difference means one of them wasn't regenerated: refresh it from cultus
+    # with `node scripts/sync-openapi.mjs ../cultus/api/openapi.json`.
+    steps:
+      - uses: actions/checkout@v6
+
+      - uses: actions/setup-node@v6
+        with:
+          node-version: 22
+
+      - name: Regenerate from the SDK's copy of the spec
+        run: |
+          curl -fsSL https://raw.githubusercontent.com/linkvite/js/main/spec/openapi.json -o /tmp/spec.json
+          node scripts/sync-openapi.mjs /tmp/spec.json
+
+      - name: No difference
+        run: |
+          if ! git diff --quiet -- api-reference/openapi.json; then
+            git diff --stat -- api-reference/openapi.json
+            echo "::error file=api-reference/openapi.json::api-reference/openapi.json differs from the spec in linkvite/js. Regenerate it (see README)."
+            exit 1
+          fi
+
+  ci:
+    name: CI
+    if: always()
+    needs: [validate]
+    runs-on: ubuntu-latest
+    steps:
+      - name: All required checks passed
+        run: '[ "${{ needs.validate.result }}" = success ]'

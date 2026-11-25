@@ -9,6 +9,8 @@ mint validate         # build checks
 mint broken-links
 ```
 
+CI (`.github/workflows/ci.yml`) runs `mint validate` and `mint broken-links` on every pull request; Mintlify deploys `main` itself. It also checks that `api-reference/openapi.json` matches the spec in [linkvite/js](https://github.com/linkvite/js) (advisory: the SDK lags until its releases merge).
+
 ## Layout
 
 | Path | |
